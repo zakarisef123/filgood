@@ -219,10 +219,9 @@
         .cat-card {
             position: relative; border-radius: var(--radius); overflow: hidden;
             min-height: 220px; display: flex; flex-direction: column; justify-content: flex-end;
-            padding: 24px; color: #fff; transition: transform .3s ease, box-shadow .3s ease;
-            box-shadow: var(--shadow-soft);
+            padding: 24px; color: #fff; box-shadow: var(--shadow-soft);
+            cursor: default; text-decoration: none;
         }
-        .cat-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
         .cat-card .cat-photo {
             position: absolute; inset: 0; z-index: 0; font-size: 0;
             background-size: cover; background-position: center;
@@ -650,11 +649,11 @@
                 <p>Chaque univers regorge de créations uniques. Choisissez la catégorie qui vous fait de l'œil&nbsp;!</p>
             </div>
             <div class="cat-grid">
-                <a href="#produits" class="cat-card c1" onclick="event.preventDefault(); showCategory('beaute')"><span class="cat-photo" id="catphoto-beaute"></span><span class="cat-ico">💄</span><h3>L'essentiel beauté</h3><span>Trousses, lingettes, gants démaquillants…</span></a>
-                <a href="#produits" class="cat-card c2" onclick="event.preventDefault(); showCategory('cheveux')"><span class="cat-photo" id="catphoto-cheveux"></span><span class="cat-ico">🎀</span><h3>Accessoires cheveux</h3><span>Chouchous & co</span></a>
-                <a href="#produits" class="cat-card c3" onclick="event.preventDefault(); showCategory('housses')"><span class="cat-photo" id="catphoto-housses"></span><span class="cat-ico">📖</span><h3>Housses pour livre</h3><span>Protégez vos lectures avec style</span></a>
-                <a href="#produits" class="cat-card c4" onclick="event.preventDefault(); showCategory('pochettes')"><span class="cat-photo" id="catphoto-pochettes"></span><span class="cat-ico">💻</span><h3>Pochettes tablette</h3><span>Élégantes & protectrices</span></a>
-                <a href="#produits" class="cat-card c5" onclick="event.preventDefault(); showCategory('etuis')"><span class="cat-photo" id="catphoto-etuis"></span><span class="cat-ico">👓</span><h3>Étuis à lunettes</h3><span>Vos lunettes bien protégées</span></a>
+                <div class="cat-card c1"><span class="cat-photo" id="catphoto-beaute"></span><span class="cat-ico">💄</span><h3>L'essentiel beauté</h3><span>Trousses, lingettes, gants démaquillants…</span></div>
+                <div class="cat-card c2"><span class="cat-photo" id="catphoto-cheveux"></span><span class="cat-ico">🎀</span><h3>Accessoires cheveux</h3><span>Chouchous & co</span></div>
+                <div class="cat-card c3"><span class="cat-photo" id="catphoto-housses"></span><span class="cat-ico">📖</span><h3>Housses pour livre</h3><span>Protégez vos lectures avec style</span></div>
+                <div class="cat-card c4"><span class="cat-photo" id="catphoto-pochettes"></span><span class="cat-ico">💻</span><h3>Pochettes tablette</h3><span>Élégantes & protectrices</span></div>
+                <div class="cat-card c5"><span class="cat-photo" id="catphoto-etuis"></span><span class="cat-ico">👓</span><h3>Étuis à lunettes</h3><span>Vos lunettes bien protégées</span></div>
             </div>
         </div>
     </section>
@@ -951,8 +950,8 @@
                 const addAction = nb > 1 ? `openQuickView(${p.id})` : `addToCart(${p.id})`;
                 const addLabel = nb > 1 ? 'Choisir un coloris' : 'Ajouter au panier';
                 return `
-            <article class="product-card">
-                <div class="product-media ${p.tile}" id="pmedia-${p.id}" onclick="openQuickView(${p.id})" style="cursor:zoom-in${p.models ? `;background:${p.models[selected[p.id]].swatch}` : ''}">
+            <article class="product-card" onclick="openQuickView(${p.id})" style="cursor:pointer">
+                <div class="product-media ${p.tile}" id="pmedia-${p.id}"${p.models ? ` style="background:${p.models[selected[p.id]].swatch}"` : ''}>
                     <span class="product-tag">${p.tag}</span>
                     <button class="wish" aria-label="Ajouter aux favoris" onclick="event.stopPropagation(); toggleWish(this)">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
@@ -961,7 +960,7 @@
                     ${colors}
                 </div>
                 <div class="product-body">
-                    <h3 onclick="openQuickView(${p.id})" style="cursor:pointer">${p.name}</h3>
+                    <h3>${p.name}</h3>
                     <p class="desc">${p.desc}</p>
                     <div class="product-foot">
                         <span class="price">${fmt(p.price)}</span>
