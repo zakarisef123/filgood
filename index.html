@@ -223,14 +223,14 @@
             box-shadow: var(--shadow-soft);
         }
         .cat-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
-        .cat-photo {
-            position: absolute; inset: 0; z-index: 0;
+        .cat-card .cat-photo {
+            position: absolute; inset: 0; z-index: 0; font-size: 0;
             background-size: cover; background-position: center;
-            opacity: 0; transition: opacity .7s ease;
+            opacity: 0; transition: opacity .5s ease;
         }
         .cat-card::after {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(to top, rgba(74,55,41,0.82), rgba(74,55,41,0.15) 70%);
+            background: linear-gradient(to top, rgba(74,55,41,0.85) 0%, rgba(74,55,41,0.30) 50%, rgba(74,55,41,0.05) 100%);
             z-index: 1;
         }
         .cat-card .cat-ico { position: absolute; top: 18px; right: 20px; font-size: 2.2rem; z-index: 2; opacity: .95; }
@@ -498,7 +498,7 @@
            MENU MOBILE
            ============================================================ */
         .mobile-nav {
-            position: fixed; inset: 0; background: var(--cream); z-index: 950;
+            position: fixed; inset: 0; background: var(--cream); z-index: 1002;
             transform: translateX(-100%); transition: transform .3s ease;
             padding: 90px 30px 30px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto;
         }
@@ -571,12 +571,11 @@
                 <div class="has-drop">
                     <a href="#boutique">Boutique ▾</a>
                     <div class="dropdown">
-                        <a href="#boutique">L'essentiel beauté</a>
-                        <a href="#boutique">Accessoires pour cheveux</a>
-                        <a href="#boutique">Housses pour livre</a>
-                        <a href="#boutique">Pochettes pour tablette</a>
-                        <a href="#boutique">Étuis à lunettes</a>
-                        <a href="#boutique">Les sacs</a>
+                        <a href="#produits" onclick="event.preventDefault(); showCategory('beaute')">L'essentiel beauté</a>
+                        <a href="#produits" onclick="event.preventDefault(); showCategory('cheveux')">Accessoires pour cheveux</a>
+                        <a href="#produits" onclick="event.preventDefault(); showCategory('housses')">Housses pour livre</a>
+                        <a href="#produits" onclick="event.preventDefault(); showCategory('pochettes')">Pochettes pour tablette</a>
+                        <a href="#produits" onclick="event.preventDefault(); showCategory('etuis')">Étuis à lunettes</a>
                     </div>
                 </div>
                 <a href="#apropos">À propos</a>
@@ -602,12 +601,11 @@
     <nav class="mobile-nav" id="mobileNav">
         <a href="#accueil" data-close>Accueil</a>
         <a href="#boutique" data-close>Boutique</a>
-        <a href="#boutique" class="sub" data-close>· L'essentiel beauté</a>
-        <a href="#boutique" class="sub" data-close>· Accessoires cheveux</a>
-        <a href="#boutique" class="sub" data-close>· Housses pour livre</a>
-        <a href="#boutique" class="sub" data-close>· Pochettes tablette</a>
-        <a href="#boutique" class="sub" data-close>· Étuis à lunettes</a>
-        <a href="#boutique" class="sub" data-close>· Les sacs</a>
+        <a href="#produits" class="sub" data-close onclick="event.preventDefault(); showCategory('beaute')">· L'essentiel beauté</a>
+        <a href="#produits" class="sub" data-close onclick="event.preventDefault(); showCategory('cheveux')">· Accessoires cheveux</a>
+        <a href="#produits" class="sub" data-close onclick="event.preventDefault(); showCategory('housses')">· Housses pour livre</a>
+        <a href="#produits" class="sub" data-close onclick="event.preventDefault(); showCategory('pochettes')">· Pochettes tablette</a>
+        <a href="#produits" class="sub" data-close onclick="event.preventDefault(); showCategory('etuis')">· Étuis à lunettes</a>
         <a href="#apropos" data-close>À propos</a>
         <a href="#contact" data-close>Contact</a>
     </nav>
@@ -749,10 +747,10 @@
                 </div>
                 <div>
                     <h5>La boutique</h5>
-                    <a href="#boutique">L'essentiel beauté</a>
-                    <a href="#boutique">Accessoires cheveux</a>
-                    <a href="#boutique">Housses & pochettes</a>
-                    <a href="#boutique">Les sacs</a>
+                    <a href="#produits" onclick="event.preventDefault(); showCategory('beaute')">L'essentiel beauté</a>
+                    <a href="#produits" onclick="event.preventDefault(); showCategory('cheveux')">Accessoires cheveux</a>
+                    <a href="#produits" onclick="event.preventDefault(); showCategory('housses')">Housses pour livre</a>
+                    <a href="#produits" onclick="event.preventDefault(); showCategory('etuis')">Étuis à lunettes</a>
                 </div>
                 <div>
                     <h5>Contact</h5>
@@ -1186,19 +1184,23 @@
                 const el = document.getElementById('catphoto-' + cat);
                 if (!el) return;
                 const loaded = [];
-                catImages[cat].forEach(src => { const im = new Image(); im.onload = () => loaded.push(src); im.src = src; });
-                let i = 0;
-                const show = () => {
-                    if (!loaded.length) return;
+                let i = 0, started = false;
+                // précharge : affiche la 1ère photo dès qu'elle est disponible
+                catImages[cat].forEach(src => {
+                    const im = new Image();
+                    im.onload = () => {
+                        loaded.push(src);
+                        if (!started) { started = true; el.style.backgroundImage = `url('${src}')`; el.style.opacity = '1'; }
+                    };
+                    im.src = src;
+                });
+                // défilement avec fondu
+                setInterval(() => {
+                    if (loaded.length < 2) return;
+                    i = (i + 1) % loaded.length;
                     el.style.opacity = '0';
-                    setTimeout(() => {
-                        el.style.backgroundImage = `url('${loaded[i % loaded.length]}')`;
-                        el.style.opacity = '1';
-                        i++;
-                    }, 700);
-                };
-                setTimeout(show, 400);          // 1ère photo dès qu'elle est chargée
-                setInterval(show, 3200);        // défilement
+                    setTimeout(() => { el.style.backgroundImage = `url('${loaded[i]}')`; el.style.opacity = '1'; }, 500);
+                }, 3000);
             });
         }
         initCatPhotos();
