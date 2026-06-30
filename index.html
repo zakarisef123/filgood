@@ -301,6 +301,19 @@
             display: inline-block; font-size: 0.78rem; font-weight: 500; color: var(--pink-text);
             margin-bottom: 8px;
         }
+        .color-badge {
+            position: absolute; bottom: 10px; left: 10px; z-index: 3;
+            background: rgba(255,255,255,0.92); color: var(--brown);
+            font-size: 0.72rem; font-weight: 600; padding: 4px 11px; border-radius: 50px;
+            box-shadow: 0 2px 6px rgba(74,55,41,.18); pointer-events: none;
+        }
+        .cat-reset {
+            display: none; align-items: center; gap: 6px; cursor: pointer;
+            background: var(--pink); color: var(--brown); border: none;
+            font-family: 'Poppins', sans-serif; font-weight: 600; font-size: .85rem;
+            padding: 8px 18px; border-radius: 50px; margin: 0 auto 26px;
+        }
+        .cat-reset:hover { background: var(--pink-deep); }
         .p-tile-1 { background: linear-gradient(135deg, #F0D9C4, #E5C3A8); }
         .p-tile-2 { background: linear-gradient(135deg, #DDE5CC, #C6D2A8); }
         .p-tile-3 { background: linear-gradient(135deg, #F2DAD0, #E8C0B2); }
@@ -633,12 +646,11 @@
                 <p>Chaque univers regorge de créations uniques. Choisissez la catégorie qui vous fait de l'œil&nbsp;!</p>
             </div>
             <div class="cat-grid">
-                <a href="#produits" class="cat-card c1"><span class="cat-ico">💄</span><h3>L'essentiel beauté</h3><span>Trousses, lingettes, gants démaquillants…</span></a>
-                <a href="#produits" class="cat-card c2"><span class="cat-ico">🎀</span><h3>Accessoires cheveux</h3><span>Chouchous & co</span></a>
-                <a href="#produits" class="cat-card c3"><span class="cat-ico">📖</span><h3>Housses pour livre</h3><span>Protégez vos lectures avec style</span></a>
-                <a href="#produits" class="cat-card c4"><span class="cat-ico">💻</span><h3>Pochettes tablette</h3><span>Élégantes & protectrices</span></a>
-                <a href="#produits" class="cat-card c5"><span class="cat-ico">👓</span><h3>Étuis à lunettes</h3><span>Vos lunettes bien protégées</span></a>
-                <a href="#produits" class="cat-card c6"><span class="cat-ico">👜</span><h3>Les sacs</h3><span>Pour vous suivre partout</span></a>
+                <a href="#produits" class="cat-card c1" onclick="event.preventDefault(); showCategory('beaute')"><span class="cat-ico">💄</span><h3>L'essentiel beauté</h3><span>Trousses, lingettes, gants démaquillants…</span></a>
+                <a href="#produits" class="cat-card c2" onclick="event.preventDefault(); showCategory('cheveux')"><span class="cat-ico">🎀</span><h3>Accessoires cheveux</h3><span>Chouchous & co</span></a>
+                <a href="#produits" class="cat-card c3" onclick="event.preventDefault(); showCategory('housses')"><span class="cat-ico">📖</span><h3>Housses pour livre</h3><span>Protégez vos lectures avec style</span></a>
+                <a href="#produits" class="cat-card c4" onclick="event.preventDefault(); showCategory('pochettes')"><span class="cat-ico">💻</span><h3>Pochettes tablette</h3><span>Élégantes & protectrices</span></a>
+                <a href="#produits" class="cat-card c5" onclick="event.preventDefault(); showCategory('etuis')"><span class="cat-ico">👓</span><h3>Étuis à lunettes</h3><span>Vos lunettes bien protégées</span></a>
             </div>
         </div>
     </section>
@@ -648,8 +660,12 @@
         <div class="container">
             <div class="section-head">
                 <span class="kicker">Coups de cœur</span>
-                <h2>Nos créations du moment</h2>
+                <h2 id="produitsTitle">Nos créations du moment</h2>
             </div>
+            <button class="cat-reset" id="catReset" onclick="resetCategory()">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                Toutes les catégories
+            </button>
             <div class="product-grid" id="productGrid">
                 <!-- généré par JS -->
             </div>
@@ -787,7 +803,9 @@
             { id: 1, name: "Pochette pour tablette", price: 15.95, tag: "Coup de cœur", emoji: "💻", tile: "p-tile-1",
               desc: "Housse matelassée cousue main, fermeture nouée. Disponible en plusieurs tissus.",
               models: [
-                { name: "Ronds wax fuchsia", swatch: "linear-gradient(135deg,#C71585,#7d1438)",
+                { name: "Wax fuchsia", swatch: "linear-gradient(135deg,#C71585,#7d1438)",
+                  gallery: ["tablettefushia.png", "tablettefushia1.png"] },
+                { name: "Ronds violet", swatch: "linear-gradient(135deg,#8E44AD,#5B2C6F)",
                   gallery: ["tabletterondviole.png", "tabletterondviole1.png"] },
                 { name: "Toile jaune & rose", swatch: "linear-gradient(135deg,#F2D24B,#F4A8C2)",
                   gallery: ["tabletterosejaune.png", "tabletterosejaune1.png"] },
@@ -872,8 +890,6 @@
                 { name: "Rose & rouge", swatch: "linear-gradient(135deg,#F4C6CE,#D14B5A)",
                   gallery: ["gantsroserouge.png", "gantsroserouge1.png", "gantsroserouge2.png"] },
               ] },
-            { id: 8, name: "Le sac Fil Good", price: 29.90, tag: "Nouveau", emoji: "👜", tile: "p-tile-4",
-              desc: "Le sac coloré qui vous suit partout, du marché à la plage." },
             { id: 9, name: "Panier de rangement", price: 12.90, tag: "Rangement", emoji: "🧺", tile: "p-tile-3",
               desc: "Petit panier en tissu, base velours côtelé, pour ranger joliment vos lingettes lavables.",
               models: [
@@ -894,9 +910,15 @@
               ] },
         ];
 
+        /* Catégorie de chaque produit (pour le filtrage depuis la grille de catégories) */
+        const CAT = { 1: 'pochettes', 2: 'beaute', 3: 'beaute', 4: 'cheveux', 5: 'housses', 6: 'etuis', 7: 'beaute', 9: 'beaute', 10: 'beaute' };
+        const CAT_LABELS = { beaute: "L'essentiel beauté", cheveux: "Accessoires cheveux", housses: "Housses pour livre", pochettes: "Pochettes tablette", etuis: "Étuis à lunettes" };
+        PRODUCTS.forEach(p => p.cat = CAT[p.id]);
+
         const FREE_SHIP = 49;
         const cart = {};         // key "pid" ou "pid:modelIdx" -> qty
         const selected = {};     // pid -> index du modèle choisi
+        let currentCat = null;   // catégorie filtrée (null = tout)
 
         /* ---------- Helpers ---------- */
         function fmt(n) { return n.toFixed(2).replace('.', ',') + ' €'; }
@@ -904,38 +926,54 @@
         function modelImg(p, idx) { return p.models ? p.models[idx].gallery[0] : null; }
         function cartKey(id) { const p = prod(id); return p.models ? id + ':' + (selected[id] || 0) : '' + id; }
 
-        /* ---------- Rendu de la grille produits ---------- */
+        /* ---------- Rendu de la grille produits (filtrable par catégorie) ---------- */
         const grid = document.getElementById('productGrid');
-        grid.innerHTML = PRODUCTS.map(p => {
-            selected[p.id] = 0;
-            const img = modelImg(p, 0);
-            const dots = p.models ? `<div class="model-select">${p.models.map((m, i) => `
-                        <button class="model-dot ${i === 0 ? 'active' : ''}" style="background:${m.swatch}"
-                            title="${m.name}" aria-label="Modèle ${m.name}"
-                            onclick="event.stopPropagation(); selectModel(${p.id}, ${i})"></button>`).join('')}</div>` : '';
-            return `
+        function renderGrid(cat) {
+            currentCat = cat || null;
+            const list = currentCat ? PRODUCTS.filter(p => p.cat === currentCat) : PRODUCTS;
+            grid.innerHTML = list.map(p => {
+                if (selected[p.id] === undefined) selected[p.id] = 0;
+                const img = modelImg(p, selected[p.id]);
+                const nb = p.models ? p.models.length : 0;
+                const colors = nb > 1 ? `<span class="color-badge">${nb} coloris</span>` : '';
+                const addAction = nb > 1 ? `openQuickView(${p.id})` : `addToCart(${p.id})`;
+                const addLabel = nb > 1 ? 'Choisir un coloris' : 'Ajouter au panier';
+                return `
             <article class="product-card">
-                <div class="product-media ${p.tile}" id="pmedia-${p.id}" onclick="openQuickView(${p.id})" style="cursor:zoom-in${p.models ? `;background:${p.models[0].swatch}` : ''}">
+                <div class="product-media ${p.tile}" id="pmedia-${p.id}" onclick="openQuickView(${p.id})" style="cursor:zoom-in${p.models ? `;background:${p.models[selected[p.id]].swatch}` : ''}">
                     <span class="product-tag">${p.tag}</span>
                     <button class="wish" aria-label="Ajouter aux favoris" onclick="event.stopPropagation(); toggleWish(this)">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
                     </button>
                     ${img ? `<img id="pimg-${p.id}" src="${img}" alt="${p.name}" loading="lazy" decoding="async" onerror="this.style.display='none'">` : `<span>${p.emoji}</span>`}
-                    ${dots}
+                    ${colors}
                 </div>
                 <div class="product-body">
                     <h3 onclick="openQuickView(${p.id})" style="cursor:pointer">${p.name}</h3>
-                    ${p.models ? `<span class="model-name" id="pmodel-${p.id}">${p.models[0].name}</span>` : ''}
                     <p class="desc">${p.desc}</p>
                     <div class="product-foot">
                         <span class="price">${fmt(p.price)}</span>
-                        <button class="add-btn" aria-label="Ajouter au panier" onclick="addToCart(${p.id})">
+                        <button class="add-btn" aria-label="${addLabel}" title="${addLabel}" onclick="event.stopPropagation(); ${addAction}">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </button>
                     </div>
                 </div>
             </article>`;
-        }).join('');
+            }).join('');
+        }
+
+        /* ---------- Filtrage par catégorie ---------- */
+        function showCategory(cat) {
+            renderGrid(cat);
+            const title = document.getElementById('produitsTitle');
+            const reset = document.getElementById('catReset');
+            if (cat) { title.textContent = CAT_LABELS[cat]; reset.style.display = 'inline-flex'; }
+            else { title.textContent = 'Nos créations du moment'; reset.style.display = 'none'; }
+            document.getElementById('produits').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        function resetCategory() { showCategory(null); window.scrollTo({ top: document.getElementById('boutique').offsetTop - 90, behavior: 'smooth' }); }
+
+        renderGrid(null);
 
         /* ---------- Sélection du modèle ---------- */
         function selectModel(id, idx) {
