@@ -223,9 +223,14 @@
             box-shadow: var(--shadow-soft);
         }
         .cat-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+        .cat-photo {
+            position: absolute; inset: 0; z-index: 0;
+            background-size: cover; background-position: center;
+            opacity: 0; transition: opacity .7s ease;
+        }
         .cat-card::after {
             content: ''; position: absolute; inset: 0;
-            background: linear-gradient(to top, rgba(74,55,41,0.78), rgba(74,55,41,0.05) 70%);
+            background: linear-gradient(to top, rgba(74,55,41,0.82), rgba(74,55,41,0.15) 70%);
             z-index: 1;
         }
         .cat-card .cat-ico { position: absolute; top: 18px; right: 20px; font-size: 2.2rem; z-index: 2; opacity: .95; }
@@ -451,7 +456,8 @@
             position: relative; aspect-ratio: 1/1; border-radius: 16px; overflow: hidden;
             display: flex; align-items: center; justify-content: center; font-size: 5rem;
         }
-        .qv-main img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .qv-main img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: qvfade .5s ease; }
+        @keyframes qvfade { from { opacity: 0; } to { opacity: 1; } }
         .qv-thumbs { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
         .qv-thumb {
             width: 64px; height: 64px; border-radius: 12px; overflow: hidden; cursor: pointer;
@@ -646,11 +652,11 @@
                 <p>Chaque univers regorge de créations uniques. Choisissez la catégorie qui vous fait de l'œil&nbsp;!</p>
             </div>
             <div class="cat-grid">
-                <a href="#produits" class="cat-card c1" onclick="event.preventDefault(); showCategory('beaute')"><span class="cat-ico">💄</span><h3>L'essentiel beauté</h3><span>Trousses, lingettes, gants démaquillants…</span></a>
-                <a href="#produits" class="cat-card c2" onclick="event.preventDefault(); showCategory('cheveux')"><span class="cat-ico">🎀</span><h3>Accessoires cheveux</h3><span>Chouchous & co</span></a>
-                <a href="#produits" class="cat-card c3" onclick="event.preventDefault(); showCategory('housses')"><span class="cat-ico">📖</span><h3>Housses pour livre</h3><span>Protégez vos lectures avec style</span></a>
-                <a href="#produits" class="cat-card c4" onclick="event.preventDefault(); showCategory('pochettes')"><span class="cat-ico">💻</span><h3>Pochettes tablette</h3><span>Élégantes & protectrices</span></a>
-                <a href="#produits" class="cat-card c5" onclick="event.preventDefault(); showCategory('etuis')"><span class="cat-ico">👓</span><h3>Étuis à lunettes</h3><span>Vos lunettes bien protégées</span></a>
+                <a href="#produits" class="cat-card c1" onclick="event.preventDefault(); showCategory('beaute')"><span class="cat-photo" id="catphoto-beaute"></span><span class="cat-ico">💄</span><h3>L'essentiel beauté</h3><span>Trousses, lingettes, gants démaquillants…</span></a>
+                <a href="#produits" class="cat-card c2" onclick="event.preventDefault(); showCategory('cheveux')"><span class="cat-photo" id="catphoto-cheveux"></span><span class="cat-ico">🎀</span><h3>Accessoires cheveux</h3><span>Chouchous & co</span></a>
+                <a href="#produits" class="cat-card c3" onclick="event.preventDefault(); showCategory('housses')"><span class="cat-photo" id="catphoto-housses"></span><span class="cat-ico">📖</span><h3>Housses pour livre</h3><span>Protégez vos lectures avec style</span></a>
+                <a href="#produits" class="cat-card c4" onclick="event.preventDefault(); showCategory('pochettes')"><span class="cat-photo" id="catphoto-pochettes"></span><span class="cat-ico">💻</span><h3>Pochettes tablette</h3><span>Élégantes & protectrices</span></a>
+                <a href="#produits" class="cat-card c5" onclick="event.preventDefault(); showCategory('etuis')"><span class="cat-photo" id="catphoto-etuis"></span><span class="cat-ico">👓</span><h3>Étuis à lunettes</h3><span>Vos lunettes bien protégées</span></a>
             </div>
         </div>
     </section>
@@ -804,12 +810,10 @@
               desc: "Housse matelassée cousue main, fermeture nouée. Disponible en plusieurs tissus.",
               models: [
                 { name: "Wax fuchsia", swatch: "linear-gradient(135deg,#C71585,#7d1438)",
-                  gallery: ["tablettefushia.png", "tablettefushia1.png"] },
-                { name: "Ronds violet", swatch: "linear-gradient(135deg,#8E44AD,#5B2C6F)",
-                  gallery: ["tabletterondviole.png", "tabletterondviole1.png"] },
+                  gallery: ["tabletterondviolet.png", "tabletterondviolet1.png"] },
                 { name: "Toile jaune & rose", swatch: "linear-gradient(135deg,#F2D24B,#F4A8C2)",
                   gallery: ["tabletterosejaune.png", "tabletterosejaune1.png"] },
-                { name: "Fleuri", swatch: "linear-gradient(135deg,#F3D3B5,#D94E63)",
+                { name: "Fleuri", swatch: "linear-gradient(135deg,#E0567F,#5FB3A8)",
                   gallery: ["tablettefleur.png", "tablettefleur1.png"] },
                 { name: "Cerises", swatch: "linear-gradient(135deg,#5FB3A8,#E8633F)",
                   gallery: ["tablettecerise.png", "tablettecerise1.png"] },
@@ -831,6 +835,16 @@
             { id: 4, name: "Chouchou en tissu", price: 6.50, tag: "Cheveux", emoji: "🎀", tile: "p-tile-3",
               desc: "Chouchou tout doux en double gaze de coton, qui prend soin de vos cheveux.",
               models: [
+                { name: "Blanc", swatch: "linear-gradient(135deg,#FBF7F0,#E7DCCB)",
+                  gallery: ["chouchoublanc.png", "chouchoublanc1.png"] },
+                { name: "Blanc fleuri", swatch: "linear-gradient(135deg,#F6EFE6,#E8A8B4)",
+                  gallery: ["chouchoublancfleur.png", "chouchoublancfleur1.png"] },
+                { name: "Léopard", swatch: "linear-gradient(135deg,#EDE3D0,#3A332B)",
+                  gallery: ["chouchoublancnoir.png", "chouchoublancnoir1.png"] },
+                { name: "Bleu liberty", swatch: "linear-gradient(135deg,#7E94B8,#E8EEF2)",
+                  gallery: ["chouchoubleu.png", "chouchoubleu1.png"] },
+                { name: "Vichy rose", swatch: "#F4A8C0",
+                  gallery: ["chouchoucarreau.png", "chouchoucarreau1.png"] },
                 { name: "Crème", swatch: "linear-gradient(135deg,#F7EFE2,#E6D5BE)",
                   gallery: ["chouchoucreme.png", "chouchoucreme1.png"] },
                 { name: "Fleurs roses", swatch: "linear-gradient(135deg,#F2D9D2,#D9617E)",
@@ -992,7 +1006,7 @@
         }
 
         /* ---------- Quick-view (galerie produit) ---------- */
-        let qvPid = null, qvPhoto = 0;
+        let qvPid = null, qvPhoto = 0, qvTimer = null;
         function openQuickView(id) {
             qvPid = id; qvPhoto = 0;
             renderQuickView();
@@ -1000,14 +1014,26 @@
             document.getElementById('overlay').classList.add('open');
         }
         function closeQuickView() {
-            qvPid = null;
+            qvPid = null; qvStopSlideshow();
             document.getElementById('qvModal').classList.remove('open');
             if (!drawer.classList.contains('open') && !mobileNav.classList.contains('open')) {
                 document.getElementById('overlay').classList.remove('open');
             }
         }
-        function qvSetPhoto(idx) { qvPhoto = idx; renderQuickViewMedia(); }
+        function qvSetPhoto(idx) { qvPhoto = idx; renderQuickViewMedia(); qvStartSlideshow(); }
         function qvSelectModel(id, idx) { qvPhoto = 0; selectModel(id, idx); }
+
+        /* Diaporama auto des photos du coloris sélectionné */
+        function qvStopSlideshow() { if (qvTimer) { clearInterval(qvTimer); qvTimer = null; } }
+        function qvStartSlideshow() {
+            qvStopSlideshow();
+            const p = prod(qvPid); if (!p) return;
+            const m = p.models ? p.models[selected[qvPid] || 0] : null;
+            const len = m ? m.gallery.length : 0;
+            if (len > 1) {
+                qvTimer = setInterval(() => { qvPhoto = (qvPhoto + 1) % len; renderQuickViewMedia(); }, 2600);
+            }
+        }
 
         function renderQuickViewMedia() {
             const p = prod(qvPid); if (!p) return;
@@ -1038,6 +1064,7 @@
                 <p class="desc">${p.desc}</p>
                 ${palette}
                 <button class="btn btn--block" onclick="addToCart(${p.id})">Ajouter au panier 🛒</button>`;
+            qvStartSlideshow();
         }
 
         /* ---------- Panier ---------- */
@@ -1146,6 +1173,35 @@
             overlay.classList.toggle('open');
         });
         document.querySelectorAll('[data-close]').forEach(a => a.addEventListener('click', closeMobile));
+
+        /* ---------- Diaporama photos par catégorie ---------- */
+        function initCatPhotos() {
+            const catImages = {};
+            PRODUCTS.forEach(p => {
+                if (!p.cat || !p.models) return;
+                const arr = catImages[p.cat] = catImages[p.cat] || [];
+                p.models.forEach(m => { if (!arr.includes(m.gallery[0])) arr.push(m.gallery[0]); });
+            });
+            Object.keys(catImages).forEach(cat => {
+                const el = document.getElementById('catphoto-' + cat);
+                if (!el) return;
+                const loaded = [];
+                catImages[cat].forEach(src => { const im = new Image(); im.onload = () => loaded.push(src); im.src = src; });
+                let i = 0;
+                const show = () => {
+                    if (!loaded.length) return;
+                    el.style.opacity = '0';
+                    setTimeout(() => {
+                        el.style.backgroundImage = `url('${loaded[i % loaded.length]}')`;
+                        el.style.opacity = '1';
+                        i++;
+                    }, 700);
+                };
+                setTimeout(show, 400);          // 1ère photo dès qu'elle est chargée
+                setInterval(show, 3200);        // défilement
+            });
+        }
+        initCatPhotos();
 
         renderCart();
     </script>
