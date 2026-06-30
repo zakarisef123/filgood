@@ -422,6 +422,60 @@
         .toast.show { transform: translateX(-50%) translateY(0); }
 
         /* ============================================================
+           QUICK-VIEW (fiche produit / galerie)
+           ============================================================ */
+        .qv-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -48%) scale(.98);
+            width: min(900px, 94vw); max-height: 92vh; overflow-y: auto;
+            background: var(--cream); border-radius: 24px; z-index: 1001;
+            box-shadow: 0 30px 80px rgba(74,55,41,.35);
+            opacity: 0; visibility: hidden; transition: opacity .25s ease, transform .25s ease;
+        }
+        .qv-modal.open { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+        .qv-grid { display: grid; grid-template-columns: 1fr 1fr; }
+        .qv-media { padding: 22px; }
+        .qv-main {
+            position: relative; aspect-ratio: 1/1; border-radius: 16px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; font-size: 5rem;
+        }
+        .qv-main img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .qv-thumbs { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+        .qv-thumb {
+            width: 64px; height: 64px; border-radius: 12px; overflow: hidden; cursor: pointer;
+            border: 2px solid transparent; background-size: cover; background-position: center; padding: 0;
+            position: relative; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+        }
+        .qv-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .qv-thumb.active { border-color: var(--pink-deep); }
+        .qv-info { padding: 30px 30px 30px 8px; display: flex; flex-direction: column; }
+        .qv-close {
+            position: absolute; top: 14px; right: 14px; z-index: 2;
+            width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer;
+            background: var(--white); color: var(--brown); box-shadow: var(--shadow-soft);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .qv-close:hover { background: var(--pink); }
+        .qv-info .tag { align-self: flex-start; background: var(--sage); color: #fff; font-size: .72rem; font-weight: 600; padding: 5px 12px; border-radius: 50px; margin-bottom: 12px; }
+        .qv-info h2 { font-size: 3rem; line-height: 1; margin-bottom: 6px; }
+        .qv-price { font-family: 'Poppins', sans-serif; font-weight: 700; font-size: 1.5rem; color: var(--pink-text); margin-bottom: 14px; }
+        .qv-info .desc { font-size: .92rem; margin-bottom: 20px; }
+        .qv-modelname { font-family: 'Poppins', sans-serif; font-size: .85rem; font-weight: 600; color: var(--brown); margin-bottom: 10px; }
+        .qv-modelname span { color: var(--pink-text); }
+        .qv-palette { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 26px; }
+        .qv-swatch {
+            width: 34px; height: 34px; border-radius: 10px; cursor: pointer; padding: 0;
+            border: 2px solid #fff; box-shadow: 0 2px 6px rgba(74,55,41,.2); background-size: cover; background-position: center;
+            transition: transform .15s ease;
+        }
+        .qv-swatch:hover { transform: scale(1.08); }
+        .qv-swatch.active { outline: 2px solid var(--pink-deep); outline-offset: 2px; }
+        @media (max-width: 720px) {
+            .qv-grid { grid-template-columns: 1fr; }
+            .qv-info { padding: 8px 22px 26px; }
+            .qv-info h2 { font-size: 2.4rem; }
+        }
+
+        /* ============================================================
            MENU MOBILE
            ============================================================ */
         .mobile-nav {
@@ -708,129 +762,135 @@
 
     <div class="toast" id="toast"></div>
 
+    <!-- QUICK-VIEW (galerie produit) -->
+    <aside class="qv-modal" id="qvModal" aria-label="Fiche produit" role="dialog" aria-modal="true">
+        <button class="qv-close" id="qvClose" aria-label="Fermer">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="qv-grid">
+            <div class="qv-media">
+                <div class="qv-main" id="qvMain"></div>
+                <div class="qv-thumbs" id="qvThumbs"></div>
+            </div>
+            <div class="qv-info" id="qvInfo"></div>
+        </div>
+    </aside>
+
     <script>
         /* ============================================================
            CATALOGUE PRODUITS
            (le produit phare reprend la vraie fiche du site)
            ============================================================ */
+        /* Les chemins d'images reprennent EXACTEMENT les noms de fichiers fournis
+           (dossier images/, extension .png). gallery[0] = photo principale. */
         const PRODUCTS = [
             { id: 1, name: "Pochette pour tablette", price: 15.95, tag: "Coup de cœur", emoji: "💻", tile: "p-tile-1",
               desc: "Housse matelassée cousue main, fermeture nouée. Disponible en plusieurs tissus.",
               models: [
-                { name: "Wax fuchsia", swatch: "linear-gradient(135deg,#C71585,#7d1438)",
-                  gallery: ["images/pochette-tablette-wax-1.jpg", "images/pochette-tablette-wax-2.jpg"] },
-                { name: "Toile de Jouy jaune & rose", swatch: "linear-gradient(135deg,#F2D24B,#F4A8C2)",
-                  gallery: ["images/pochette-tablette-toile-1.jpg", "images/pochette-tablette-toile-2.jpg"] },
-                { name: "Fleurs & vichy rouge", swatch: "linear-gradient(135deg,#F3D3B5,#D94E63)",
-                  gallery: ["images/pochette-tablette-fleurs-1.jpg", "images/pochette-tablette-fleurs-2.jpg"] },
-                { name: "Cerises & vichy vert", swatch: "linear-gradient(135deg,#5FB3A8,#E8633F)",
-                  gallery: ["images/pochette-tablette-cerises-1.jpg", "images/pochette-tablette-cerises-2.jpg"] },
-                { name: "Fleurs indiennes bleu & vichy rose", swatch: "linear-gradient(135deg,#8FA0BE,#E59AAE)",
-                  gallery: ["images/pochette-tablette-fleurs-bleu-1.jpg", "images/pochette-tablette-fleurs-bleu-2.jpg"] },
+                { name: "Ronds wax fuchsia", swatch: "linear-gradient(135deg,#C71585,#7d1438)",
+                  gallery: ["images/tabletterondviole.png", "images/tabletterondviole1.png"] },
+                { name: "Toile jaune & rose", swatch: "linear-gradient(135deg,#F2D24B,#F4A8C2)",
+                  gallery: ["images/tabletterosejaune.png", "images/tabletterosejaune1.png"] },
+                { name: "Fleuri", swatch: "linear-gradient(135deg,#F3D3B5,#D94E63)",
+                  gallery: ["images/tablettefleur.png", "images/tablettefleur1.png"] },
+                { name: "Cerises", swatch: "linear-gradient(135deg,#5FB3A8,#E8633F)",
+                  gallery: ["images/tablettecerise.png", "images/tablettecerise1.png"] },
+                { name: "Fleurs indiennes bleu", swatch: "linear-gradient(135deg,#8FA0BE,#E59AAE)",
+                  gallery: ["images/tablettebleu.png", "images/tablettebleu1.png"] },
               ] },
             { id: 2, name: "Trousse à maquillage", price: 14.50, tag: "Beauté", emoji: "💄", tile: "p-tile-3",
               desc: "Trousse zippée doublée pour ranger vos essentiels beauté avec style.",
               models: [
                 { name: "Fleurs pastel liberty", swatch: "linear-gradient(135deg,#F1E2CE,#D8A98E)",
-                  gallery: ["images/trousse-fleurs-pastel-1.jpg", "images/trousse-fleurs-pastel-2.jpg"] },
+                  gallery: ["images/troussemaquillage.png", "images/troussemaquillage1.png", "images/troussemaquillage2.png"] },
               ] },
             { id: 3, name: "Lingettes lavables (x5)", price: 9.90, tag: "Zéro déchet", emoji: "🌿", tile: "p-tile-2",
               desc: "Recto tissu fleuri, verso éponge douce. Réutilisables et écologiques.",
               models: [
                 { name: "Fleurs bleu & rose", swatch: "linear-gradient(135deg,#3E5BA9,#C2347E)",
-                  gallery: ["images/lingettes-fleurs-bleu-1.jpg"] },
+                  gallery: ["images/lingettelavable.png"] },
               ] },
             { id: 4, name: "Chouchou en tissu", price: 6.50, tag: "Cheveux", emoji: "🎀", tile: "p-tile-3",
               desc: "Chouchou tout doux en double gaze de coton, qui prend soin de vos cheveux.",
               models: [
-                { name: "Vieux rose à pois dorés", swatch: "linear-gradient(135deg,#BE5170,#E0A96D)",
-                  gallery: ["images/chouchou-vieux-rose-1.jpg", "images/chouchou-vieux-rose-2.jpg"] },
-                { name: "Rose poudré", swatch: "#E9B8AE",
-                  gallery: ["images/chouchou-rose-poudre-1.jpg", "images/chouchou-rose-poudre-2.jpg"] },
-                { name: "Liberty pastel jaune", swatch: "linear-gradient(135deg,#F2E4A8,#C8D7A0)",
-                  gallery: ["images/chouchou-liberty-pastel-1.jpg", "images/chouchou-liberty-pastel-2.jpg"] },
-                { name: "Liberty rouge & vert", swatch: "linear-gradient(135deg,#D33B33,#2E8B57)",
-                  gallery: ["images/chouchou-liberty-rouge-1.jpg", "images/chouchou-liberty-rouge-2.jpg"] },
-                { name: "Liberty fuchsia & gris", swatch: "linear-gradient(135deg,#D14C86,#9AA0A6)",
-                  gallery: ["images/chouchou-liberty-fuchsia-1.jpg", "images/chouchou-liberty-fuchsia-2.jpg"] },
-                { name: "Liberty bleu & ocre", swatch: "linear-gradient(135deg,#3E78A8,#C8924C)",
-                  gallery: ["images/chouchou-liberty-bleu-1.jpg", "images/chouchou-liberty-bleu-2.jpg"] },
-                { name: "Écru broderie anglaise", swatch: "linear-gradient(135deg,#F7EFE2,#E6D5BE)",
-                  gallery: ["images/chouchou-broderie-1.jpg", "images/chouchou-broderie-2.jpg"] },
-                { name: "Fleurs terracotta sur rose", swatch: "linear-gradient(135deg,#F2D9D2,#9B4A33)",
-                  gallery: ["images/chouchou-terracotta-1.jpg", "images/chouchou-terracotta-2.jpg"] },
-                { name: "Vichy rose", swatch: "#F4A8C0",
-                  gallery: ["images/chouchou-vichy-rose-1.jpg", "images/chouchou-vichy-rose-2.jpg"] },
-                { name: "Liberty bleu jean", swatch: "linear-gradient(135deg,#7E94B8,#E8EEF2)",
-                  gallery: ["images/chouchou-bleu-jean-1.jpg", "images/chouchou-bleu-jean-2.jpg"] },
-                { name: "Léopard écru", swatch: "linear-gradient(135deg,#EDE3D0,#3A332B)",
-                  gallery: ["images/chouchou-leopard-1.jpg", "images/chouchou-leopard-2.jpg"] },
-                { name: "Petites fleurs multicolores", swatch: "linear-gradient(135deg,#F4EDE0,#5FA8A0)",
-                  gallery: ["images/chouchou-fleurs-multi-1.jpg", "images/chouchou-fleurs-multi-2.jpg"] },
-                { name: "Rayé jaune pâle", swatch: "linear-gradient(135deg,#F2E4B0,#FBF7EC)",
-                  gallery: ["images/chouchou-raye-jaune-1.jpg", "images/chouchou-raye-jaune-2.jpg"] },
+                { name: "Crème", swatch: "linear-gradient(135deg,#F7EFE2,#E6D5BE)",
+                  gallery: ["images/chouchoucreme.png", "images/chouchoucreme1.png"] },
+                { name: "Fleurs roses", swatch: "linear-gradient(135deg,#F2D9D2,#D9617E)",
+                  gallery: ["images/chouchoufleurrose.png", "images/chouchoufleurrose1.png"] },
+                { name: "Fleurs roses clair", swatch: "linear-gradient(135deg,#FBEFE9,#E8A8B4)",
+                  gallery: ["images/chouchoufleurroseeclaire.png", "images/chouchoufleurroseeclaire1.png"] },
+                { name: "Bleu pailleté or", swatch: "linear-gradient(135deg,#6E7FA8,#C9A24B)",
+                  gallery: ["images/chouchougoldblue.png", "images/chouchougoldblue1.png"] },
+                { name: "Marbré", swatch: "linear-gradient(135deg,#D9CFE0,#8A7F9B)",
+                  gallery: ["images/chouchoumarbre.png", "images/chouchoumarbre1.png"] },
+                { name: "Multi-fleurs", swatch: "linear-gradient(135deg,#F4EDE0,#5FA8A0)",
+                  gallery: ["images/chouchoumultifleurs.png", "images/chouchoumultifleurs1.png"] },
+                { name: "Rose", swatch: "#E9A8B4",
+                  gallery: ["images/chouchourose.png", "images/chouchourose1.png"] },
+                { name: "Violet", swatch: "linear-gradient(135deg,#9A6FB0,#6E4E8E)",
+                  gallery: ["images/chouchouviolet.png", "images/chouchouviolet1.png"] },
               ] },
             { id: 5, name: "Housse pour livre", price: 18.00, tag: "Lecture", emoji: "📖", tile: "p-tile-4",
               desc: "Protégez vos lectures préférées, fermeture bouton. Plusieurs tissus au choix.",
               models: [
-                { name: "Velours côtelé fuchsia", swatch: "linear-gradient(135deg,#E0218A,#A8136a)",
-                  gallery: ["images/housse-livre-velours-1.jpg", "images/housse-livre-velours-2.jpg"] },
-                { name: "Fleurs corail sur lin", swatch: "linear-gradient(135deg,#F3EDE3,#E8868A)",
-                  gallery: ["images/housse-livre-fleurs-1.jpg", "images/housse-livre-fleurs-2.jpg"] },
-                { name: "Velours bleu marine & fleurs", swatch: "linear-gradient(135deg,#26365F,#B98E5A)",
-                  gallery: ["images/housse-livre-marine-1.jpg", "images/housse-livre-marine-2.jpg"] },
-                { name: "Velours écru & fleurs ocre", swatch: "linear-gradient(135deg,#EDE5D4,#C8924C)",
-                  gallery: ["images/housse-livre-ecru-1.jpg", "images/housse-livre-ecru-2.jpg"] },
+                { name: "Velours écru", swatch: "linear-gradient(135deg,#F1EADB,#D9CBB2)",
+                  gallery: ["images/livreblanc.png", "images/livreblanc1.png"] },
+                { name: "Velours bleu marine", swatch: "linear-gradient(135deg,#26365F,#B98E5A)",
+                  gallery: ["images/livrebleu.png", "images/livrebleu1.png"] },
+                { name: "Fleuri", swatch: "linear-gradient(135deg,#F3EDE3,#E8868A)",
+                  gallery: ["images/livrefleur.png", "images/livrefleur1.png", "images/livrefleur2.png"] },
+                { name: "Velours rose", swatch: "linear-gradient(135deg,#E0218A,#A8136a)",
+                  gallery: ["images/livrerose.png", "images/livrerose1.png", "images/livrerose2.png"] },
               ] },
             { id: 6, name: "Étui à lunettes", price: 12.90, tag: "Pratique", emoji: "👓", tile: "p-tile-1",
-              desc: "Étui souple en velours côtelé, doublé et matelassé, fermeture bouton-pression.",
+              desc: "Étui souple, doublé et matelassé, fermeture bouton-pression.",
               models: [
-                { name: "Velours fuchsia & vichy rose", swatch: "linear-gradient(135deg,#E0218A,#F3C5CE)",
-                  gallery: ["images/etui-lunettes-vichy-1.jpg", "images/etui-lunettes-vichy-2.jpg"] },
-                { name: "Velours fuchsia & fleurs", swatch: "linear-gradient(135deg,#E0218A,#B98F86)",
-                  gallery: ["images/etui-lunettes-fleurs-1.jpg", "images/etui-lunettes-fleurs-2.jpg"] },
-                { name: "Fleurs jaune multicolore", swatch: "linear-gradient(135deg,#F4C430,#E8508A)",
-                  gallery: ["images/etui-lunettes-jaune-1.jpg", "images/etui-lunettes-jaune-2.jpg"] },
-                { name: "Fleurs roses sur écru", swatch: "linear-gradient(135deg,#F3EDE0,#E8869A)",
-                  gallery: ["images/etui-lunettes-ecru-1.jpg", "images/etui-lunettes-ecru-2.jpg"] },
-                { name: "Velours beige & fleurs ocre", swatch: "linear-gradient(135deg,#E6DDCB,#B5793F)",
-                  gallery: ["images/etui-lunettes-beige-1.jpg", "images/etui-lunettes-beige-2.jpg"] },
-                { name: "Fleurs roses & dos rose", swatch: "linear-gradient(135deg,#F3EDE6,#D98B9A)",
-                  gallery: ["images/etui-lunettes-rose-1.jpg", "images/etui-lunettes-rose-2.jpg"] },
-                { name: "Fleurs bleu liberty", swatch: "linear-gradient(135deg,#7E8FB5,#EDE8DC)",
-                  gallery: ["images/etui-lunettes-bleu-1.jpg", "images/etui-lunettes-bleu-2.jpg"] },
+                { name: "Crème", swatch: "linear-gradient(135deg,#EDE3D0,#CDB99A)",
+                  gallery: ["images/etuilunettecreme.png", "images/etuilunettecreme1.png"] },
+                { name: "Fleuri", swatch: "linear-gradient(135deg,#F3E3D2,#D89B86)",
+                  gallery: ["images/etuilunettefleur.png", "images/etuilunettefleur1.png"] },
+                { name: "Jaune multicolore", swatch: "linear-gradient(135deg,#F4C430,#E8508A)",
+                  gallery: ["images/etuilunettejaune.png", "images/etuilunettejaune1.png"] },
+                { name: "Vert & rose", swatch: "linear-gradient(135deg,#5FA89A,#E59AAE)",
+                  gallery: ["images/etuilunettevertrose.png", "images/etuilunettevertrose1.png"] },
+                { name: "Violet", swatch: "linear-gradient(135deg,#9A6FB0,#E0218A)",
+                  gallery: ["images/etuilunetteviolet.png", "images/etuilunetteviolet1.png"] },
+                { name: "Violet à carreaux", swatch: "linear-gradient(135deg,#B59AC8,#7E5E9E)",
+                  gallery: ["images/etuilunettevioletcarreau.png", "images/etuilunettevioletcarreau1.png"] },
+                { name: "Bleu liberty", swatch: "linear-gradient(135deg,#7E8FB5,#EDE8DC)",
+                  gallery: ["images/etuilunettebleu.png", "images/etuilunettebleu1.png"] },
               ] },
             { id: 7, name: "Gant démaquillant", price: 7.50, tag: "Zéro déchet", emoji: "🧼", tile: "p-tile-2",
               desc: "Tout doux en minky, il démaquille rien qu'avec de l'eau. Lavable et réutilisable.",
               models: [
-                { name: "Minky gris & liberty fleuri", swatch: "linear-gradient(135deg,#CBD3C9,#D98E9E)",
-                  gallery: ["images/gant-gris-1.jpg", "images/gant-gris-2.jpg"] },
-                { name: "Minky blanc & liberty rouge", swatch: "linear-gradient(135deg,#F7F3EC,#D14B5A)",
-                  gallery: ["images/gant-blanc-1.jpg", "images/gant-blanc-2.jpg"] },
-                { name: "Minky rose & liberty turquoise", swatch: "linear-gradient(135deg,#F4C6CE,#4FA89B)",
-                  gallery: ["images/gant-rose-1.jpg", "images/gant-rose-2.jpg"] },
-                { name: "Minky blanc & liberty multicolore", swatch: "linear-gradient(135deg,#F7F3EC,#E2A6C4)",
-                  gallery: ["images/gant-blanc-multi-1.jpg", "images/gant-blanc-multi-2.jpg"] },
+                { name: "Multicolore", swatch: "linear-gradient(135deg,#F7F3EC,#E2A6C4)",
+                  gallery: ["images/gantsmulticolor.png", "images/gantsmulticolor2.png"] },
+                { name: "Rose & bleu", swatch: "linear-gradient(135deg,#F4C6CE,#4F7AA8)",
+                  gallery: ["images/gantsrosebleu.png", "images/gantsrosebleu2.png", "images/gantsrosebleu3.png"] },
+                { name: "Rose & rose", swatch: "linear-gradient(135deg,#F4C6CE,#E0729A)",
+                  gallery: ["images/gantsroserose.png", "images/gantsroserose1.png", "images/gantsroserose2.png", "images/gantsroserose3.png"] },
+                { name: "Rose & rouge", swatch: "linear-gradient(135deg,#F4C6CE,#D14B5A)",
+                  gallery: ["images/gantsroserouge.png", "images/gantsroserouge1.png", "images/gantsroserouge2.png"] },
               ] },
             { id: 8, name: "Le sac Fil Good", price: 29.90, tag: "Nouveau", emoji: "👜", tile: "p-tile-4",
               desc: "Le sac coloré qui vous suit partout, du marché à la plage." },
             { id: 9, name: "Panier de rangement", price: 12.90, tag: "Rangement", emoji: "🧺", tile: "p-tile-3",
               desc: "Petit panier en tissu, base velours côtelé, pour ranger joliment vos lingettes lavables.",
               models: [
-                { name: "Velours rose & fleurs bleu", swatch: "linear-gradient(135deg,#E0559B,#3E5BA9)",
-                  gallery: ["images/panier-rangement-rose-1.jpg", "images/panier-rangement-rose-2.jpg"] },
+                { name: "Velours rose & fleurs", swatch: "linear-gradient(135deg,#E0559B,#3E5BA9)",
+                  gallery: ["images/panierrangementlingette.png", "images/panierrangementlingette1.png", "images/panierrangementlingette2.png"] },
               ] },
             { id: 10, name: "Filet de lavage", price: 8.90, tag: "Pratique", emoji: "🫧", tile: "p-tile-2",
               desc: "Filet en maille pour protéger le linge délicat en machine. Choisissez la couleur du zip.",
               models: [
-                { name: "Zip rose", swatch: "#E86A9A", gallery: ["images/filet-lavage-1.jpg", "images/filet-lavage-2.jpg"] },
-                { name: "Zip rose pâle", swatch: "#F3C5CE", gallery: ["images/filet-lavage-1.jpg", "images/filet-lavage-2.jpg"] },
-                { name: "Zip rouge", swatch: "#D7352E", gallery: ["images/filet-lavage-1.jpg", "images/filet-lavage-2.jpg"] },
-                { name: "Zip orange", swatch: "#E8902E", gallery: ["images/filet-lavage-1.jpg", "images/filet-lavage-2.jpg"] },
-                { name: "Zip vert", swatch: "#3FAE64", gallery: ["images/filet-lavage-1.jpg", "images/filet-lavage-2.jpg"] },
-                { name: "Zip bleu", swatch: "#2E9BD6", gallery: ["images/filet-lavage-1.jpg", "images/filet-lavage-2.jpg"] },
-                { name: "Zip marine", swatch: "#243B66", gallery: ["images/filet-lavage-1.jpg", "images/filet-lavage-2.jpg"] },
-                { name: "Zip blanc", swatch: "#FFFFFF", gallery: ["images/filet-lavage-1.jpg", "images/filet-lavage-2.jpg"] },
+                { name: "Zip rose", swatch: "#E86A9A", gallery: ["images/filetlavage.png", "images/filetlavage 1.png"] },
+                { name: "Zip rose pâle", swatch: "#F3C5CE", gallery: ["images/filetlavage.png", "images/filetlavage 1.png"] },
+                { name: "Zip rouge", swatch: "#D7352E", gallery: ["images/filetlavage.png", "images/filetlavage 1.png"] },
+                { name: "Zip orange", swatch: "#E8902E", gallery: ["images/filetlavage.png", "images/filetlavage 1.png"] },
+                { name: "Zip vert", swatch: "#3FAE64", gallery: ["images/filetlavage.png", "images/filetlavage 1.png"] },
+                { name: "Zip bleu", swatch: "#2E9BD6", gallery: ["images/filetlavage.png", "images/filetlavage 1.png"] },
+                { name: "Zip marine", swatch: "#243B66", gallery: ["images/filetlavage.png", "images/filetlavage 1.png"] },
+                { name: "Zip blanc", swatch: "#FFFFFF", gallery: ["images/filetlavage.png", "images/filetlavage 1.png"] },
               ] },
         ];
 
@@ -852,20 +912,19 @@
             const dots = p.models ? `<div class="model-select">${p.models.map((m, i) => `
                         <button class="model-dot ${i === 0 ? 'active' : ''}" style="background:${m.swatch}"
                             title="${m.name}" aria-label="Modèle ${m.name}"
-                            onclick="selectModel(${p.id}, ${i}, this)"></button>`).join('')}</div>` : '';
-            const mediaStyle = p.models ? ` style="background:${p.models[0].swatch}"` : '';
+                            onclick="event.stopPropagation(); selectModel(${p.id}, ${i})"></button>`).join('')}</div>` : '';
             return `
             <article class="product-card">
-                <div class="product-media ${p.tile}" id="pmedia-${p.id}"${mediaStyle}>
+                <div class="product-media ${p.tile}" id="pmedia-${p.id}" onclick="openQuickView(${p.id})" style="cursor:zoom-in${p.models ? `;background:${p.models[0].swatch}` : ''}">
                     <span class="product-tag">${p.tag}</span>
-                    <button class="wish" aria-label="Ajouter aux favoris" onclick="toggleWish(this)">
+                    <button class="wish" aria-label="Ajouter aux favoris" onclick="event.stopPropagation(); toggleWish(this)">
                         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
                     </button>
-                    ${img ? `<img id="pimg-${p.id}" src="${img}" alt="${p.name}" loading="lazy" onerror="this.style.display='none'">` : `<span>${p.emoji}</span>`}
+                    ${img ? `<img id="pimg-${p.id}" src="${img}" alt="${p.name}" loading="lazy" decoding="async" onerror="this.style.display='none'">` : `<span>${p.emoji}</span>`}
                     ${dots}
                 </div>
                 <div class="product-body">
-                    <h3>${p.name}</h3>
+                    <h3 onclick="openQuickView(${p.id})" style="cursor:pointer">${p.name}</h3>
                     ${p.models ? `<span class="model-name" id="pmodel-${p.id}">${p.models[0].name}</span>` : ''}
                     <p class="desc">${p.desc}</p>
                     <div class="product-foot">
@@ -879,17 +938,68 @@
         }).join('');
 
         /* ---------- Sélection du modèle ---------- */
-        function selectModel(id, idx, btn) {
+        function selectModel(id, idx) {
             selected[id] = idx;
             const p = prod(id);
             const media = document.getElementById('pmedia-' + id);
-            if (media) media.style.background = p.models[idx].swatch;
+            if (media) {
+                media.style.background = p.models[idx].swatch;
+                media.querySelectorAll('.model-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+            }
             const img = document.getElementById('pimg-' + id);
             if (img) { img.src = p.models[idx].gallery[0]; img.style.display = ''; }
             const lbl = document.getElementById('pmodel-' + id);
             if (lbl) lbl.textContent = p.models[idx].name;
-            btn.parentNode.querySelectorAll('.model-dot').forEach(d => d.classList.remove('active'));
-            btn.classList.add('active');
+            if (qvPid === id) renderQuickView();
+        }
+
+        /* ---------- Quick-view (galerie produit) ---------- */
+        let qvPid = null, qvPhoto = 0;
+        function openQuickView(id) {
+            qvPid = id; qvPhoto = 0;
+            renderQuickView();
+            document.getElementById('qvModal').classList.add('open');
+            document.getElementById('overlay').classList.add('open');
+        }
+        function closeQuickView() {
+            qvPid = null;
+            document.getElementById('qvModal').classList.remove('open');
+            if (!drawer.classList.contains('open') && !mobileNav.classList.contains('open')) {
+                document.getElementById('overlay').classList.remove('open');
+            }
+        }
+        function qvSetPhoto(idx) { qvPhoto = idx; renderQuickViewMedia(); }
+        function qvSelectModel(id, idx) { qvPhoto = 0; selectModel(id, idx); }
+
+        function renderQuickViewMedia() {
+            const p = prod(qvPid); if (!p) return;
+            const m = p.models ? p.models[selected[qvPid] || 0] : null;
+            const gal = m ? m.gallery : [];
+            if (qvPhoto > gal.length - 1) qvPhoto = 0;
+            const main = document.getElementById('qvMain');
+            main.style.background = m ? m.swatch : 'var(--beige)';
+            main.innerHTML = gal.length
+                ? `<img src="${gal[qvPhoto]}" alt="${p.name}" decoding="async" onerror="this.style.display='none'">`
+                : `<span>${p.emoji}</span>`;
+            document.getElementById('qvThumbs').innerHTML = gal.map((g, i) =>
+                `<button class="qv-thumb ${i === qvPhoto ? 'active' : ''}" style="background:${m ? m.swatch : ''}" onclick="qvSetPhoto(${i})"><img src="${g}" alt="" decoding="async" onerror="this.style.display='none'"></button>`).join('');
+        }
+        function renderQuickView() {
+            const p = prod(qvPid); if (!p) return;
+            const mIdx = selected[qvPid] || 0;
+            const m = p.models ? p.models[mIdx] : null;
+            renderQuickViewMedia();
+            const palette = p.models ? `
+                <div class="qv-modelname">Modèle : <span>${m.name}</span></div>
+                <div class="qv-palette">${p.models.map((mm, i) =>
+                    `<button class="qv-swatch ${i === mIdx ? 'active' : ''}" style="background:${mm.swatch}" title="${mm.name}" aria-label="${mm.name}" onclick="qvSelectModel(${p.id}, ${i})"></button>`).join('')}</div>` : '';
+            document.getElementById('qvInfo').innerHTML = `
+                <span class="tag">${p.tag}</span>
+                <h2>${p.name}</h2>
+                <div class="qv-price">${fmt(p.price)}</div>
+                <p class="desc">${p.desc}</p>
+                ${palette}
+                <button class="btn btn--block" onclick="addToCart(${p.id})">Ajouter au panier 🛒</button>`;
         }
 
         /* ---------- Panier ---------- */
@@ -974,7 +1084,11 @@
         function closeCart() { drawer.classList.remove('open'); overlay.classList.remove('open'); }
         document.getElementById('openCart').addEventListener('click', openCart);
         document.getElementById('closeCart').addEventListener('click', closeCart);
-        overlay.addEventListener('click', () => { closeCart(); closeMobile(); });
+        document.getElementById('qvClose').addEventListener('click', closeQuickView);
+        overlay.addEventListener('click', () => { closeCart(); closeMobile(); closeQuickView(); });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { closeQuickView(); closeCart(); closeMobile(); }
+        });
 
         /* ---------- Toast ---------- */
         let toastTimer;
