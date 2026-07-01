@@ -219,9 +219,10 @@
         .cat-card {
             position: relative; border-radius: var(--radius); overflow: hidden;
             min-height: 220px; display: flex; flex-direction: column; justify-content: flex-end;
-            padding: 24px; color: #fff; box-shadow: var(--shadow-soft);
-            cursor: default; text-decoration: none;
+            padding: 24px; color: #fff; box-shadow: var(--shadow-soft); text-decoration: none;
+            cursor: pointer; transition: transform .3s ease, box-shadow .3s ease;
         }
+        .cat-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
         .cat-card .cat-photo {
             position: absolute; inset: 0; z-index: 0; font-size: 0;
             background-size: cover; background-position: center;
@@ -506,6 +507,82 @@
         .mobile-nav .sub { font-size: 1rem; padding-left: 18px; color: var(--brown-soft); }
 
         /* ============================================================
+           CHECKOUT / PAYMENT MODAL
+           ============================================================ */
+        .checkout-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(.95);
+            width: min(700px, 94vw); max-height: 92vh; overflow-y: auto;
+            background: var(--cream); border-radius: 24px; z-index: 1001;
+            box-shadow: 0 30px 80px rgba(74,55,41,.35);
+            opacity: 0; visibility: hidden; transition: opacity .25s ease, transform .25s ease;
+            padding: 32px;
+        }
+        .checkout-modal.open {
+            opacity: 1; visibility: visible;
+        }
+        .checkout-close {
+            position: absolute; top: 20px; right: 20px;
+            background: none; border: none; cursor: pointer; color: var(--brown);
+            width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            transition: background .2s ease;
+        }
+        .checkout-close:hover { background: var(--pink-soft); }
+        .checkout-head { margin-bottom: 28px; }
+        .checkout-head h2 { font-size: 2.4rem; margin-bottom: 6px; }
+        .step-indicator { font-size: 0.85rem; color: var(--brown-soft); font-weight: 500; }
+        .checkout-step { display: none; }
+        .checkout-step[style*="display: block"], .checkout-step:not([style*="display"]) { display: block; }
+        .checkout-step h3 { font-size: 1.3rem; margin-bottom: 20px; color: var(--brown); }
+        .checkout-step h4 { font-size: 1.1rem; margin: 20px 0 16px; color: var(--brown); font-weight: 600; }
+
+        .order-review { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--beige-deep); }
+        .review-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--pink-soft); }
+        .review-item:last-child { border-bottom: none; }
+        .review-item .thumb { width: 60px; height: 60px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
+        .review-item .details { flex: 1; }
+        .review-item .details h4 { font-size: 0.95rem; margin: 0 0 4px; font-weight: 600; color: var(--brown); }
+        .review-item .details p { font-size: 0.85rem; color: var(--brown-soft); margin: 0; }
+        .review-item .price { font-weight: 600; color: var(--pink-text); }
+
+        .order-total { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--pink-soft); border-radius: 12px; margin-bottom: 24px; font-size: 1.1rem; font-weight: 600; }
+        .order-total span:last-child { color: var(--brown); }
+
+        .payment-methods { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+        .payment-option {
+            padding: 20px; border: 2px solid var(--beige-deep); background: var(--white); border-radius: 12px;
+            cursor: pointer; transition: all .2s ease; display: flex; flex-direction: column; align-items: center;
+            gap: 10px; font-family: 'Poppins', sans-serif; font-weight: 500; color: var(--brown);
+        }
+        .payment-option:hover { border-color: var(--pink); }
+        .payment-option.active { border-color: var(--pink); background: var(--pink-soft); box-shadow: 0 4px 12px rgba(235,164,187,.2); }
+        .method-ico { font-size: 2.4rem; }
+        .method-name { font-size: 0.95rem; }
+
+        .payment-form { border: 1px solid var(--beige-deep); padding: 20px; border-radius: 12px; background: var(--white); margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; display: flex; flex-direction: column; }
+        .form-group label { font-size: 0.9rem; font-weight: 600; color: var(--brown); margin-bottom: 6px; }
+        .form-group input { padding: 12px 14px; border: 1px solid var(--beige-deep); border-radius: 8px; font-family: 'Poppins', sans-serif; font-size: 0.95rem; color: var(--brown); transition: border .2s ease; }
+        .form-group input:focus { outline: none; border-color: var(--pink); }
+        .form-group input::placeholder { color: var(--brown-soft); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .card-note { font-size: 0.8rem; color: var(--sage); font-weight: 500; margin: 12px 0 16px; padding: 12px; background: rgba(138,154,107,.08); border-radius: 8px; }
+        .payment-info { font-size: 0.95rem; color: var(--brown-soft); margin-bottom: 16px; line-height: 1.5; }
+
+        .order-confirmation { text-align: center; padding: 20px 0; }
+        .confirmation-ico { font-size: 4rem; margin-bottom: 16px; }
+        .order-confirmation h3 { font-size: 2rem; margin-bottom: 8px; }
+        .order-confirmation > p { font-size: 1.1rem; color: var(--brown-soft); margin-bottom: 24px; }
+        .confirmation-details { background: var(--pink-soft); padding: 20px; border-radius: 12px; margin-bottom: 24px; text-align: left; }
+        .confirmation-details div { font-size: 0.95rem; padding: 6px 0; display: flex; justify-content: space-between; }
+        .confirmation-details div:not(:last-child) { border-bottom: 1px solid rgba(235,164,187,.3); }
+
+        @media (max-width: 640px) {
+            .checkout-modal { padding: 24px; }
+            .payment-methods { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        /* ============================================================
            RESPONSIVE
            ============================================================ */
         @media (max-width: 980px) {
@@ -649,11 +726,11 @@
                 <p>Chaque univers regorge de créations uniques. Choisissez la catégorie qui vous fait de l'œil&nbsp;!</p>
             </div>
             <div class="cat-grid">
-                <div class="cat-card c1"><span class="cat-photo" id="catphoto-beaute"></span><span class="cat-ico">💄</span><h3>L'essentiel beauté</h3><span>Trousses, lingettes, gants démaquillants…</span></div>
-                <div class="cat-card c2"><span class="cat-photo" id="catphoto-cheveux"></span><span class="cat-ico">🎀</span><h3>Accessoires cheveux</h3><span>Chouchous & co</span></div>
-                <div class="cat-card c3"><span class="cat-photo" id="catphoto-housses"></span><span class="cat-ico">📖</span><h3>Housses pour livre</h3><span>Protégez vos lectures avec style</span></div>
-                <div class="cat-card c4"><span class="cat-photo" id="catphoto-pochettes"></span><span class="cat-ico">💻</span><h3>Pochettes tablette</h3><span>Élégantes & protectrices</span></div>
-                <div class="cat-card c5"><span class="cat-photo" id="catphoto-etuis"></span><span class="cat-ico">👓</span><h3>Étuis à lunettes</h3><span>Vos lunettes bien protégées</span></div>
+                <a href="#produits" class="cat-card c1" onclick="event.preventDefault(); showCategory('beaute')"><span class="cat-photo" id="catphoto-beaute"></span><span class="cat-ico">💄</span><h3>L'essentiel beauté</h3><span>Trousses, lingettes, gants démaquillants…</span></a>
+                <a href="#produits" class="cat-card c2" onclick="event.preventDefault(); showCategory('cheveux')"><span class="cat-photo" id="catphoto-cheveux"></span><span class="cat-ico">🎀</span><h3>Accessoires cheveux</h3><span>Chouchous & co</span></a>
+                <a href="#produits" class="cat-card c3" onclick="event.preventDefault(); showCategory('housses')"><span class="cat-photo" id="catphoto-housses"></span><span class="cat-ico">📖</span><h3>Housses pour livre</h3><span>Protégez vos lectures avec style</span></a>
+                <a href="#produits" class="cat-card c4" onclick="event.preventDefault(); showCategory('pochettes')"><span class="cat-photo" id="catphoto-pochettes"></span><span class="cat-ico">💻</span><h3>Pochettes tablette</h3><span>Élégantes & protectrices</span></a>
+                <a href="#produits" class="cat-card c5" onclick="event.preventDefault(); showCategory('etuis')"><span class="cat-photo" id="catphoto-etuis"></span><span class="cat-ico">👓</span><h3>Étuis à lunettes</h3><span>Vos lunettes bien protégées</span></a>
             </div>
         </div>
     </section>
@@ -775,7 +852,7 @@
         <div class="cart-foot">
             <div class="cart-total"><span class="lbl">Total</span><span class="val" id="cartTotal">0,00 €</span></div>
             <p class="ship-note" id="shipNote">Plus que 49,00 € pour la livraison offerte 🚚</p>
-            <button class="btn btn--block" onclick="showToast('Commande simulée — merci ! 💛')">Passer la commande</button>
+            <button class="btn btn--block" onclick="openCheckout()">Passer la commande</button>
         </div>
     </aside>
 
@@ -792,6 +869,110 @@
                 <div class="qv-thumbs" id="qvThumbs"></div>
             </div>
             <div class="qv-info" id="qvInfo"></div>
+        </div>
+    </aside>
+
+    <!-- CHECKOUT / PAYMENT MODAL -->
+    <aside class="checkout-modal" id="checkoutModal" aria-label="Paiement" role="dialog" aria-modal="true">
+        <button class="checkout-close" id="checkoutClose" aria-label="Fermer">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="checkout-head">
+            <h2>Finaliser votre commande</h2>
+            <p class="step-indicator" id="stepIndicator">Étape 1/2</p>
+        </div>
+
+        <!-- Step 1: Order Review -->
+        <div class="checkout-step" id="step1" data-step="1">
+            <h3>Récapitulatif</h3>
+            <div class="order-review" id="orderReview"></div>
+            <div class="order-total">
+                <span>Montant total</span>
+                <span id="checkoutTotal">0,00 €</span>
+            </div>
+            <button class="btn btn--block" onclick="goToStep(2)">Choisir un moyen de paiement →</button>
+        </div>
+
+        <!-- Step 2: Payment Method -->
+        <div class="checkout-step" id="step2" data-step="2" style="display:none;">
+            <h3>Choisir un moyen de paiement</h3>
+            <div class="payment-methods">
+                <button class="payment-option" onclick="selectPaymentMethod('card')" data-method="card">
+                    <div class="method-ico">💳</div>
+                    <div class="method-name">Carte bancaire</div>
+                </button>
+                <button class="payment-option" onclick="selectPaymentMethod('paypal')" data-method="paypal">
+                    <div class="method-ico">🅿️</div>
+                    <div class="method-name">PayPal</div>
+                </button>
+                <button class="payment-option" onclick="selectPaymentMethod('applepay')" data-method="applepay">
+                    <div class="method-ico">🍎</div>
+                    <div class="method-name">Apple Pay</div>
+                </button>
+                <button class="payment-option" onclick="selectPaymentMethod('googlepay')" data-method="googlepay">
+                    <div class="method-ico">🔵</div>
+                    <div class="method-name">Google Pay</div>
+                </button>
+            </div>
+
+            <!-- Card Payment Form -->
+            <div class="payment-form" id="cardForm" style="display:none;">
+                <h4>Infos carte bancaire</h4>
+                <div class="form-group">
+                    <label>Numéro de carte</label>
+                    <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" inputmode="numeric" />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Expiration</label>
+                        <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5" inputmode="numeric" />
+                    </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="text" id="cardCvv" placeholder="123" maxlength="4" inputmode="numeric" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Nom du titulaire</label>
+                    <input type="text" id="cardName" placeholder="Jean Dupont" />
+                </div>
+                <div class="card-note">Mode de démonstration — aucune donnée n'est transmise 🔒</div>
+                <button class="btn btn--block" onclick="submitPayment('card')">Payer avec la carte</button>
+            </div>
+
+            <!-- PayPal Payment -->
+            <div class="payment-form" id="paypalForm" style="display:none;">
+                <h4>Paiement PayPal</h4>
+                <p class="payment-info">Vous serez redirigé vers PayPal pour confirmer votre paiement en toute sécurité.</p>
+                <button class="btn btn--block" style="background:var(--terracotta);" onclick="submitPayment('paypal')">Continuer avec PayPal</button>
+            </div>
+
+            <!-- Apple Pay Payment -->
+            <div class="payment-form" id="applepayForm" style="display:none;">
+                <h4>Apple Pay</h4>
+                <p class="payment-info">Cliquez ci-dessous pour utiliser Apple Pay. Vous devez utiliser un appareil compatible.</p>
+                <button class="btn btn--block" style="background:var(--brown);" onclick="submitPayment('applepay')">Payer avec Apple Pay</button>
+            </div>
+
+            <!-- Google Pay Payment -->
+            <div class="payment-form" id="googlepayForm" style="display:none;">
+                <h4>Google Pay</h4>
+                <p class="payment-info">Cliquez ci-dessous pour utiliser Google Pay. Vous devez utiliser un appareil compatible.</p>
+                <button class="btn btn--block" style="background:var(--brown);" onclick="submitPayment('googlepay')">Payer avec Google Pay</button>
+            </div>
+
+            <button class="btn btn--ghost btn--block" style="margin-top:12px;" onclick="goToStep(1)">← Retour</button>
+        </div>
+
+        <!-- Step 3: Confirmation (success) -->
+        <div class="checkout-step" id="step3" data-step="3" style="display:none;">
+            <div class="order-confirmation">
+                <div class="confirmation-ico">✅</div>
+                <h3>Commande confirmée !</h3>
+                <p>Merci de votre achat 💛</p>
+                <div class="confirmation-details" id="confirmationDetails"></div>
+                <button class="btn btn--block" onclick="closeCheckout(); renderCart();">Continuer vos achats</button>
+            </div>
         </div>
     </aside>
 
@@ -1203,6 +1384,165 @@
             });
         }
         initCatPhotos();
+
+        /* ---------- Checkout / Payment ---------- */
+        let currentCheckoutStep = 1;
+        let selectedPaymentMethod = null;
+
+        function openCheckout() {
+            const keys = Object.keys(cart);
+            if (keys.length === 0) {
+                showToast('Votre panier est vide 🧺');
+                return;
+            }
+            currentCheckoutStep = 1;
+            selectedPaymentMethod = null;
+            document.getElementById('checkoutModal').classList.add('open');
+            overlay.classList.add('open');
+            renderOrderReview();
+            goToStep(1);
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('open');
+            overlay.classList.remove('open');
+            currentCheckoutStep = 1;
+            selectedPaymentMethod = null;
+        }
+
+        function renderOrderReview() {
+            const keys = Object.keys(cart);
+            let total = 0;
+            const items = keys.map(key => {
+                const [pid, midx] = key.split(':');
+                const p = prod(+pid);
+                const m = (midx !== undefined && p.models) ? p.models[+midx] : null;
+                const q = cart[key];
+                total += p.price * q;
+                const thumb = m && m.gallery[0]
+                    ? `<div class="thumb ${p.tile}" style="background:url('${m.gallery[0]}') center/cover, var(--beige-deep)"></div>`
+                    : `<div class="thumb ${p.tile}">${p.emoji}</div>`;
+                return `<div class="review-item">
+                    ${thumb}
+                    <div class="details">
+                        <h4>${p.name}${m ? ` · ${m.name}` : ''}</h4>
+                        <p>Quantité: <strong>${q}</strong></p>
+                    </div>
+                    <div class="price">${fmt(p.price * q)}</div>
+                </div>`;
+            }).join('');
+            document.getElementById('orderReview').innerHTML = items;
+            document.getElementById('checkoutTotal').textContent = fmt(total);
+        }
+
+        function goToStep(step) {
+            currentCheckoutStep = step;
+            document.querySelectorAll('.checkout-step').forEach(s => s.style.display = 'none');
+            document.getElementById('step' + step).style.display = 'block';
+            if (step < 3) {
+                document.getElementById('stepIndicator').textContent = `Étape ${step}/2`;
+            } else {
+                document.getElementById('stepIndicator').textContent = 'Commande confirmée !';
+            }
+
+            if (step === 2) {
+                // Reset payment method selection
+                document.querySelectorAll('.payment-option').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.payment-form').forEach(f => f.style.display = 'none');
+                selectedPaymentMethod = null;
+            }
+        }
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            document.querySelectorAll('.payment-option').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-method="${method}"]`).classList.add('active');
+            document.querySelectorAll('.payment-form').forEach(f => f.style.display = 'none');
+            document.getElementById(method + 'Form').style.display = 'block';
+        }
+
+        // Luhn validation for credit card
+        function luhnValidate(num) {
+            let sum = 0, isEven = false;
+            for (let i = num.length - 1; i >= 0; i--) {
+                let digit = parseInt(num[i], 10);
+                if (isEven) { digit *= 2; if (digit > 9) digit -= 9; }
+                sum += digit;
+                isEven = !isEven;
+            }
+            return sum % 10 === 0;
+        }
+
+        function submitPayment(method) {
+            if (method === 'card') {
+                const number = document.getElementById('cardNumber').value.replace(/\s/g, '');
+                const expiry = document.getElementById('cardExpiry').value;
+                const cvv = document.getElementById('cardCvv').value;
+                const name = document.getElementById('cardName').value.trim();
+
+                if (!number || number.length < 13) {
+                    showToast('Numéro de carte invalide ❌');
+                    return;
+                }
+                if (!luhnValidate(number)) {
+                    showToast('Carte bancaire invalide (Luhn) ❌');
+                    return;
+                }
+                if (!expiry || expiry.length !== 5) {
+                    showToast('Expiration invalide (MM/YY) ❌');
+                    return;
+                }
+                if (!cvv || cvv.length < 3) {
+                    showToast('CVV invalide ❌');
+                    return;
+                }
+                if (!name) {
+                    showToast('Nom du titulaire requis ❌');
+                    return;
+                }
+            }
+
+            // Simulate payment processing
+            showToast('Traitement du paiement... 💳');
+            setTimeout(() => {
+                completeOrder(method);
+            }, 1500);
+        }
+
+        function completeOrder(method) {
+            const keys = Object.keys(cart);
+            let total = 0;
+            keys.forEach(key => {
+                const [pid] = key.split(':');
+                const p = prod(+pid);
+                total += p.price * cart[key];
+            });
+
+            const methodLabels = {
+                'card': 'Carte bancaire',
+                'paypal': 'PayPal',
+                'applepay': 'Apple Pay',
+                'googlepay': 'Google Pay'
+            };
+
+            const orderNum = 'CMD-' + Date.now().toString().slice(-8);
+            const details = `
+                <div><span>Numéro de commande:</span><span><strong>${orderNum}</strong></span></div>
+                <div><span>Montant total:</span><span><strong>${fmt(total)}</strong></span></div>
+                <div><span>Moyen de paiement:</span><span><strong>${methodLabels[method]}</strong></span></div>
+            `;
+            document.getElementById('confirmationDetails').innerHTML = details;
+
+            // Clear cart
+            Object.keys(cart).forEach(k => delete cart[k]);
+            goToStep(3);
+            showToast(`Commande confirmée ! ${methodLabels[method]} — ${orderNum} 💛`);
+        }
+
+        document.getElementById('checkoutClose').addEventListener('click', closeCheckout);
+        overlay.addEventListener('click', () => {
+            if (document.getElementById('checkoutModal').classList.contains('open')) closeCheckout();
+        });
 
         renderCart();
     </script>
